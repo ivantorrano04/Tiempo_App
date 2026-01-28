@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>SmartWeather Pro</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+</head>
+<body>
+    <div class="app-container">
+        <nav class="search-nav">
+            <div class="search-wrapper">
+                <i class="ph-bold ph-magnifying-glass"></i>
+                <input type="text" id="cityInput" placeholder="Buscar ciudad o aeropuerto">
+                <button id="searchBtn">Buscar</button>
+            </div>
+        </nav>
+
+        <main class="main-content">
+            <section class="hero-section">
+                <div class="hero-info">
+                    <h1 id="cityName">Cargando...</h1>
+                    <div class="main-display">
+                        <span id="avgTemp">--</span><span class="degree-symbol">°</span>
+                    </div>
+                    <p id="weatherDesc">--</p>
+                    <div class="temp-range">
+                        <span>Máx: <span id="maxTemp">--</span>°</span>
+                        <span>Mín: <span id="minTemp">--</span>°</span>
+                    </div>
+                </div>
+                <div id="weatherIconLarge" class="hero-icon"></div>
+            </section>
+
+            <div class="bento-grid">
+                <div class="widget card-viento">
+                    <div class="widget-label"><i class="ph ph-wind"></i> VIENTO</div>
+                    <div class="widget-main-val"><span id="val-wind">--</span> <small>km/h</small></div>
+                    <p class="widget-sub">Ráfagas: <span id="val-gusts">--</span> km/h</p>
+                </div>
+
+                <div class="widget card-uv">
+                    <div class="widget-label"><i class="ph ph-sun"></i> ÍNDICE UV</div>
+                    <div class="widget-main-val" id="val-uv">--</div>
+                    <p class="widget-sub" id="uv-advice">--</p>
+                </div>
+
+                <div class="widget card-sun">
+                    <div class="widget-label"><i class="ph ph-cloud-sun"></i> SOL</div>
+                    <div class="sun-times">
+                        <div><small>Amanecer</small><span id="val-sunrise">--:--</span></div>
+                        <div><small>Ocaso</small><span id="val-sunset">--:--</span></div>
+                    </div>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-label"><i class="ph ph-thermometer-hot"></i> SENSACIÓN</div>
+                    <div class="widget-main-val"><span id="val-feels">--</span>°</div>
+                    <p class="widget-sub">Humedad: <span id="val-humidity">--</span>%</p>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-label"><i class="ph ph-eye"></i> VISIBILIDAD</div>
+                    <div class="widget-main-val"><span id="val-vis">--</span> <small>km</small></div>
+                    <p class="widget-sub">Presión: <span id="val-pressure">--</span> hPa</p>
+                </div>
+
+                <div class="widget">
+                    <div class="widget-label"><i class="ph ph-drop"></i> LLUVIA</div>
+                    <div class="widget-main-val"><span id="val-rain">--</span> <small>mm</small></div>
+                    <p class="widget-sub">En últimas 24h</p>
+                </div>
+            </div>
+
+            <section class="forecast-section">
+                <h2>Pronóstico 5 días</h2>
+                <div class="forecast-scroll" id="forecastCards"></div>
+            </section>
+
+            <section class="consensus-bar">
+                <div class="pill">Open-Meteo: <span id="source-1">--</span></div>
+                <div class="pill">WeatherAPI: <span id="source-2">--</span></div>
+                <div class="pill">OpenWeather: <span id="source-3">--</span></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="loader" class="loader-overlay">
+        <div class="apple-spinner"></div>
+    </div>
+
+    <script type="module" src="script.js"></script>
+</body>
+</html>
