@@ -1,0 +1,15 @@
+{
+  "short_name": "WeatherPro",
+  "name": "SmartWeather Pro",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/869/869869.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#1C1B33",
+  "background_color": "#1C1B33"
+}

@@ -12,25 +12,52 @@
 
     <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+
+    <!-- Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- PWA Settings -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="WeatherPro">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/869/869869.png">
 </head>
 
 <body>
     <!-- Dynamic Background Layers -->
     <div class="bg-layer" id="bgLayer"></div>
+    <canvas id="weatherCanvas" style="position: fixed; inset: 0; z-index: -1; pointer-events: none;"></canvas>
 
     <div class="app-container">
         <!-- Navigation / Search -->
         <nav class="top-nav">
-            <div class="search-bar">
-                <i class="ph-bold ph-magnifying-glass"></i>
-                <input type="text" id="cityInput" placeholder="Ciudad...">
+            <!-- My Location Button (New) -->
+            <button id="geoBtn" class="icon-btn" aria-label="Usar mi ubicación">
+                <i class="ph-fill ph-navigation-arrow"></i>
+            </button>
+
+            <!-- Search Wrapper for relative positioning of dropdown -->
+            <div class="search-wrapper" style="position: relative; flex: 1;">
+                <div class="search-bar">
+                    <i class="ph-bold ph-magnifying-glass"></i>
+                    <input type="text" id="cityInput" placeholder="Buscar ciudad..." autocomplete="off">
+                </div>
+                <div id="suggestions" class="suggestions-dropdown"></div>
             </div>
         </nav>
 
         <main class="main-content">
             <!-- Hero Section: Just Text (iOS Style) -->
             <section class="hero-section">
-                <h1 id="cityName">--</h1>
+                <div class="city-header-row"
+                    style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+                    <h1 id="cityName">--</h1>
+                    <button id="favBtn" class="icon-btn-ghost" aria-label="Añadir a favoritos">
+                        <i class="ph ph-star"></i>
+                    </button>
+                </div>
                 <div class="main-temp"><span id="avgTemp">--</span>°</div>
                 <div class="weather-state" id="weatherDesc">--</div>
                 <div class="hl-range">
@@ -61,15 +88,25 @@
 
             <!-- Stats Grid -->
             <div class="stats-grid">
+                <!-- Air Quality (New) -->
+                <div class="stat-item span-full" data-type="aqi">
+                    <div class="card-title"><i class="ph-fill ph-wind"></i> Calidad del Aire</div>
+                    <div class="stat-value" id="val-aqi">--</div>
+                    <div class="stat-sub" id="aqi-desc">--</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="aqi-bar" style="width: 0%"></div>
+                    </div>
+                </div>
+
                 <!-- UV Index -->
-                <div class="stat-item">
+                <div class="stat-item" data-type="uv">
                     <div class="card-title"><i class="ph-fill ph-sun"></i> Índice UV</div>
                     <div class="stat-value" id="val-uv">--</div>
                     <div class="stat-sub" id="uv-advice">--</div>
                 </div>
 
                 <!-- Wind -->
-                <div class="stat-item">
+                <div class="stat-item" data-type="wind">
                     <div class="card-title"><i class="ph-fill ph-wind"></i> Viento</div>
                     <div class="stat-value"><span id="val-wind">--</span> <small>km/h</small></div>
                     <div class="stat-desc">Ráfagas: <span id="val-gusts">--</span></div>
@@ -77,28 +114,33 @@
                 </div>
 
                 <!-- Sunrise / Sunset -->
-                <div class="stat-item">
-                    <div class="card-title"><i class="ph-fill ph-horizon"></i> Sol</div>
+                <div class="stat-item" data-type="sun">
+                    <div class="card-title"><i class="ph-fill ph-horizon"></i> Sol y Luna</div>
                     <div class="stat-value" style="font-size: 24px" id="val-sunset">--</div>
                     <div class="stat-desc">Puesta de sol</div>
                     <div class="stat-sub">Amanecer: <span id="val-sunrise">--</span></div>
+                    <!-- Moon Phase (New) -->
+                    <div class="stat-sub"
+                        style="margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 5px;">
+                        Luna: <span id="val-moon">--</span>
+                    </div>
                 </div>
 
                 <!-- Humidity -->
-                <div class="stat-item">
+                <div class="stat-item" data-type="humidity">
                     <div class="card-title"><i class="ph-fill ph-drop"></i> Humedad</div>
                     <div class="stat-value"><span id="val-humidity">--</span>%</div>
                     <div class="stat-sub">Punto de rocío: <span id="val-dew">--</span>°</div>
                 </div>
 
                 <!-- Visibility -->
-                <div class="stat-item">
+                <div class="stat-item" data-type="visibility">
                     <div class="card-title"><i class="ph-fill ph-eye"></i> Visibilidad</div>
                     <div class="stat-value"><span id="val-vis">--</span> <small>km</small></div>
                 </div>
 
                 <!-- Feels Like -->
-                <div class="stat-item">
+                <div class="stat-item" data-type="feels">
                     <div class="card-title"><i class="ph-fill ph-thermometer"></i> Sensación</div>
                     <div class="stat-value"><span id="val-feels">--</span>°</div>
                     <div class="stat-sub">Similar a la real</div>
@@ -114,7 +156,80 @@
                 </div>
                 <p>Weather data provided by multiple sources</p>
             </footer>
+
+            <!-- Pagination Dots for Favorites -->
+            <div class="pagination-dots" id="favDots"></div>
         </main>
+    </div>
+
+    <!-- Details Modal -->
+    <div id="dayModal" class="modal-overlay">
+        <div class="modal-card">
+            <button class="close-btn" id="closeModal"><i class="ph-bold ph-x"></i></button>
+            <div class="modal-header">
+                <h2 id="modalDate">--</h2>
+                <div class="modal-sub" id="modalCond">--</div>
+            </div>
+
+            <div class="modal-hero">
+                <img id="modalIcon" src="" alt="icon">
+                <div class="modal-temp-range">
+                    <span class="high" id="modalMax">--°</span>
+                    <span class="sep">/</span>
+                    <span class="low" id="modalMin">--°</span>
+                </div>
+            </div>
+
+            <div class="modal-grid">
+                <div class="m-item">
+                    <i class="ph-fill ph-drop"></i>
+                    <span class="label">Lluvia</span>
+                    <span class="val" id="modalRain">--%</span>
+                </div>
+                <div class="m-item">
+                    <i class="ph-fill ph-wind"></i>
+                    <span class="label">Viento Max</span>
+                    <span class="val" id="modalWind">-- km/h</span>
+                </div>
+                <div class="m-item">
+                    <i class="ph-fill ph-waves"></i>
+                    <span class="label">Humedad</span>
+                    <span class="val" id="modalHum">--%</span>
+                </div>
+                <div class="m-item">
+                    <i class="ph-fill ph-sun"></i>
+                    <span class="label">UV</span>
+                    <span class="val" id="modalUv">--</span>
+                </div>
+                <div class="m-item">
+                    <i class="ph-fill ph-sunrise"></i>
+                    <span class="label">Salida</span>
+                    <span class="val" id="modalSunrise">--</span>
+                </div>
+                <div class="m-item">
+                    <i class="ph-fill ph-moon"></i>
+                    <span class="label">Fase</span>
+                    <span class="val small" id="modalMoon">--</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Modal (New) -->
+    <div id="statModal" class="modal-overlay">
+        <div class="modal-card">
+            <button class="close-btn" id="closeStatModal"><i class="ph-bold ph-x"></i></button>
+            <div class="modal-header">
+                <h2 id="statTitle">--</h2>
+                <div class="modal-sub" id="statDesc">Detalles de las últimas 24 horas</div>
+            </div>
+            <div class="chart-container" style="position: relative; height: 250px; width: 100%;">
+                <canvas id="statChart"></canvas>
+            </div>
+            <div class="stat-summary" id="statSummary" style="margin-top: 15px; font-size: 14px; opacity: 0.8;">
+                <!-- Extra text info injected here -->
+            </div>
+        </div>
     </div>
 
     <!-- Loader -->
