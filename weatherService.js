@@ -28,7 +28,7 @@ export async function fetchWeatherDetails(lat, lon, key) {
     const res = await fetch(url);
     if (!res.ok) throw new Error("Error al obtener detalles");
     const data = await res.json();
-    
+
     const current = data.current;
     const astro = data.forecast.forecastday[0].astro;
 
@@ -37,6 +37,7 @@ export async function fetchWeatherDetails(lat, lon, key) {
         condition: current.condition.text,
         conditionIcon: current.condition.icon,
         windKph: current.wind_kph,
+        windDegree: current.wind_degree,
         gustsKph: current.gust_kph,
         humidity: current.humidity,
         precip: current.precip_mm,
@@ -49,7 +50,8 @@ export async function fetchWeatherDetails(lat, lon, key) {
         sunrise: astro.sunrise,
         sunset: astro.sunset,
         maxTemp: data.forecast.forecastday[0].day.maxtemp_c,
-        minTemp: data.forecast.forecastday[0].day.mintemp_c
+        minTemp: data.forecast.forecastday[0].day.mintemp_c,
+        hourly: data.forecast.forecastday[0].hour
     };
 }
 

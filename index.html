@@ -1,96 +1,128 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SmartWeather Pro</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@200;300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Icons -->
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
 </head>
+
 <body>
+    <!-- Dynamic Background Layers -->
+    <div class="bg-layer" id="bgLayer"></div>
+
     <div class="app-container">
-        <nav class="search-nav">
-            <div class="search-wrapper">
+        <!-- Navigation / Search -->
+        <nav class="top-nav">
+            <div class="search-bar">
                 <i class="ph-bold ph-magnifying-glass"></i>
-                <input type="text" id="cityInput" placeholder="Buscar ciudad o aeropuerto">
-                <button id="searchBtn">Buscar</button>
+                <input type="text" id="cityInput" placeholder="Ciudad...">
             </div>
         </nav>
 
         <main class="main-content">
+            <!-- Hero Section: Just Text (iOS Style) -->
             <section class="hero-section">
-                <div class="hero-info">
-                    <h1 id="cityName">Cargando...</h1>
-                    <div class="main-display">
-                        <span id="avgTemp">--</span><span class="degree-symbol">°</span>
-                    </div>
-                    <p id="weatherDesc">--</p>
-                    <div class="temp-range">
-                        <span>Máx: <span id="maxTemp">--</span>°</span>
-                        <span>Mín: <span id="minTemp">--</span>°</span>
-                    </div>
+                <h1 id="cityName">--</h1>
+                <div class="main-temp"><span id="avgTemp">--</span>°</div>
+                <div class="weather-state" id="weatherDesc">--</div>
+                <div class="hl-range">
+                    Máx.: <span id="maxTemp">--</span>° Mín.: <span id="minTemp">--</span>°
                 </div>
-                <div id="weatherIconLarge" class="hero-icon"></div>
             </section>
 
-            <div class="bento-grid">
-                <div class="widget card-viento">
-                    <div class="widget-label"><i class="ph ph-wind"></i> VIENTO</div>
-                    <div class="widget-main-val"><span id="val-wind">--</span> <small>km/h</small></div>
-                    <p class="widget-sub">Ráfagas: <span id="val-gusts">--</span> km/h</p>
+            <!-- Hourly Forecast Module -->
+            <section class="ios-card">
+                <div class="card-title">
+                    <i class="ph-fill ph-clock"></i> Pronóstico por horas
+                </div>
+                <!-- Horizontal Scroll Container -->
+                <div class="hourly-scroll" id="hourlyScroll">
+                    <!-- JS Injected: <div class="hour-item">...</div> -->
+                </div>
+            </section>
+
+            <!-- 5-Day Forecast Module (Vertical) -->
+            <section class="ios-card">
+                <div class="card-title">
+                    <i class="ph-fill ph-calendar-blank"></i> Pronóstico 5 días
+                </div>
+                <div class="daily-list" id="forecastList">
+                    <!-- JS Injected Rows -->
+                </div>
+            </section>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <!-- UV Index -->
+                <div class="stat-item">
+                    <div class="card-title"><i class="ph-fill ph-sun"></i> Índice UV</div>
+                    <div class="stat-value" id="val-uv">--</div>
+                    <div class="stat-sub" id="uv-advice">--</div>
                 </div>
 
-                <div class="widget card-uv">
-                    <div class="widget-label"><i class="ph ph-sun"></i> ÍNDICE UV</div>
-                    <div class="widget-main-val" id="val-uv">--</div>
-                    <p class="widget-sub" id="uv-advice">--</p>
+                <!-- Wind -->
+                <div class="stat-item">
+                    <div class="card-title"><i class="ph-fill ph-wind"></i> Viento</div>
+                    <div class="stat-value"><span id="val-wind">--</span> <small>km/h</small></div>
+                    <div class="stat-desc">Ráfagas: <span id="val-gusts">--</span></div>
+                    <div class="stat-sub" id="wind-dir-text">--</div>
                 </div>
 
-                <div class="widget card-sun">
-                    <div class="widget-label"><i class="ph ph-cloud-sun"></i> SOL</div>
-                    <div class="sun-times">
-                        <div><small>Amanecer</small><span id="val-sunrise">--:--</span></div>
-                        <div><small>Ocaso</small><span id="val-sunset">--:--</span></div>
-                    </div>
+                <!-- Sunrise / Sunset -->
+                <div class="stat-item">
+                    <div class="card-title"><i class="ph-fill ph-horizon"></i> Sol</div>
+                    <div class="stat-value" style="font-size: 24px" id="val-sunset">--</div>
+                    <div class="stat-desc">Puesta de sol</div>
+                    <div class="stat-sub">Amanecer: <span id="val-sunrise">--</span></div>
                 </div>
 
-                <div class="widget">
-                    <div class="widget-label"><i class="ph ph-thermometer-hot"></i> SENSACIÓN</div>
-                    <div class="widget-main-val"><span id="val-feels">--</span>°</div>
-                    <p class="widget-sub">Humedad: <span id="val-humidity">--</span>%</p>
+                <!-- Humidity -->
+                <div class="stat-item">
+                    <div class="card-title"><i class="ph-fill ph-drop"></i> Humedad</div>
+                    <div class="stat-value"><span id="val-humidity">--</span>%</div>
+                    <div class="stat-sub">Punto de rocío: <span id="val-dew">--</span>°</div>
                 </div>
 
-                <div class="widget">
-                    <div class="widget-label"><i class="ph ph-eye"></i> VISIBILIDAD</div>
-                    <div class="widget-main-val"><span id="val-vis">--</span> <small>km</small></div>
-                    <p class="widget-sub">Presión: <span id="val-pressure">--</span> hPa</p>
+                <!-- Visibility -->
+                <div class="stat-item">
+                    <div class="card-title"><i class="ph-fill ph-eye"></i> Visibilidad</div>
+                    <div class="stat-value"><span id="val-vis">--</span> <small>km</small></div>
                 </div>
 
-                <div class="widget">
-                    <div class="widget-label"><i class="ph ph-drop"></i> LLUVIA</div>
-                    <div class="widget-main-val"><span id="val-rain">--</span> <small>mm</small></div>
-                    <p class="widget-sub">En últimas 24h</p>
+                <!-- Feels Like -->
+                <div class="stat-item">
+                    <div class="card-title"><i class="ph-fill ph-thermometer"></i> Sensación</div>
+                    <div class="stat-value"><span id="val-feels">--</span>°</div>
+                    <div class="stat-sub">Similar a la real</div>
                 </div>
             </div>
 
-            <section class="forecast-section">
-                <h2>Pronóstico 5 días</h2>
-                <div class="forecast-scroll" id="forecastCards"></div>
-            </section>
-
-            <section class="consensus-bar">
-                <div class="pill">Open-Meteo: <span id="source-1">--</span></div>
-                <div class="pill">WeatherAPI: <span id="source-2">--</span></div>
-                <div class="pill">OpenWeather: <span id="source-3">--</span></div>
-            </section>
+            <!-- Data Sources -->
+            <footer class="app-footer">
+                <div class="sources">
+                    <span>Meteo: <span id="source-1">--</span>°</span>
+                    <span>WAPI: <span id="source-2">--</span>°</span>
+                    <span>OWM: <span id="source-3">--</span>°</span>
+                </div>
+                <p>Weather data provided by multiple sources</p>
+            </footer>
         </main>
     </div>
 
+    <!-- Loader -->
     <div id="loader" class="loader-overlay">
-        <div class="apple-spinner"></div>
+        <div class="spinner"></div>
     </div>
 
     <script type="module" src="script.js"></script>
 </body>
+
 </html>
